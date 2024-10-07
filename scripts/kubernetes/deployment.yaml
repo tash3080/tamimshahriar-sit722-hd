@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-catalog
+  labels:
+    app: book-catalog
+spec:
+  replicas: 2  # Number of replicas is set to 2
+  selector:
+    matchLabels:
+      app: book-catalog
+  template:
+    metadata:
+      labels:
+        app: book-catalog
+    spec:
+      containers:
+      - name: book-catalog
+        image: 287423721143.dkr.ecr.ap-southeast-2.amazonaws.com/book-catalog:latest
+        ports:
+        - containerPort: 8000
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-catalog-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8000
+  selector:
+    app: book-catalog
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-management
+  labels:
+    app: inventory-management
+spec:
+  replicas: 2  # Number of replicas is set to 2
+  selector:
+    matchLabels:
+      app: inventory-management
+  template:
+    metadata:
+      labels:
+        app: inventory-management
+    spec:
+      containers:
+      - name: inventory-management
+        image: 287423721143.dkr.ecr.ap-southeast-2.amazonaws.com/inventory-management:latest
+        ports:
+        - containerPort: 8000
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-management-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 81
+    targetPort: 8000
+  selector:
+    app: inventory-management
