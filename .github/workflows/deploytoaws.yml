@@ -39,9 +39,19 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
+    - name: Create repositoty on AWS
+      run: |
+        aws ecr create-repository --repository-name $ECR_REPOSITORY1 --region $AWS_REGION
+        aws ecr create-repository --repository-name $ECR_REPOSITORY2 --region $AWS_REGION
+
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+
+    # - name: Create repositoty on AWS
+    #   run: |
+    #     aws ecr create-repository --repository-name $ECR_REPOSITORY1 --region $AWS_REGION
+    #     aws ecr create-repository --repository-name $ECR_REPOSITORY2 --region $AWS_REGION
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
