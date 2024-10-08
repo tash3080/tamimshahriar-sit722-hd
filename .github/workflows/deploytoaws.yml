@@ -27,6 +27,11 @@ jobs:
         docker --version
         aws --version
 
+    - name: Install docker-compose
+      uses: KengoTODA/actions-setup-docker-compose@v1
+      with:
+        version: '2.14.2'
+        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
