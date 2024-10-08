@@ -26,6 +26,8 @@ jobs:
       run: |
         docker --version
         aws --version
+        kubectl version --client
+        eksctl version
 
     - name: Install docker-compose
       uses: KengoTODA/actions-setup-docker-compose@v1
@@ -48,10 +50,10 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    # - name: Create repositoty on AWS
-    #   run: |
-    #     aws ecr create-repository --repository-name $ECR_REPOSITORY1 --region $AWS_REGION
-    #     aws ecr create-repository --repository-name $ECR_REPOSITORY2 --region $AWS_REGION
+    - name: Create repositoty on AWS
+      run: |
+        aws ecr create-repository --repository-name $ECR_REPOSITORY1 --region $AWS_REGION
+        aws ecr create-repository --repository-name $ECR_REPOSITORY2 --region $AWS_REGION
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
