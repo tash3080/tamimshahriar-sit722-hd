@@ -57,10 +57,10 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} 
       run: |
         docker-compose up -d --build
-        docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:latest
-        docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY1:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY2:latest
+        docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+        docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
 
     - name: Install EKSCTL
       run: |
