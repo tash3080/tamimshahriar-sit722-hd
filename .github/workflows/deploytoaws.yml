@@ -10,7 +10,8 @@ env:
   AWS_REGION: ap-southeast-2 
   ECR_REPOSITORY1: book-catalog  
   ECR_REPOSITORY2: inventory-management
-  ECS_CLUSTER: sit722-cluster 
+  ECS_CLUSTER: sit722-cluster
+  VERSION: ${{ github.sha }}
 
 jobs:
   deploy:
@@ -22,12 +23,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Verify Docker and AWS installation
+    - name: Verify Docker, Kubernetes and AWS installation
       run: |
         docker --version
-        aws --version
         kubectl version --client
-        eksctl version
+        aws --version
+
 
     - name: Install docker-compose
       uses: KengoTODA/actions-setup-docker-compose@v1
@@ -59,16 +60,35 @@ jobs:
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}
       run: |
-        # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY1:$IMAGE_TAG .
-        # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY2:$IMAGE_TAG .
         docker-compose up -d --build
-        docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:$IMAGE_TAG
-        docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$IMAGE_TAG
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$IMAGE_TAG
-        echo "image1=$ECR_REGISTRY/$ECR_REPOSITORY1:$IMAGE_TAG" >> $GITHUB_OUTPUT
-        echo "image2=$ECR_REGISTRY/$ECR_REPOSITORY2:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+        docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
+        echo "image1=$ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION" >> $GITHUB_OUTPUT
+        echo "image2=$ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION" >> $GITHUB_OUTPUT
 
+    - name: Install EKSCTL
+      run: |
+        curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.191.0/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+        sudo mv /tmp/eksctl /usr/local/bin
+        eksctl version
 
+    - name: Create the deployment cluster
+      run: eksctl create cluster --name my-cluster --version 1.27 --region ap-southeast-2 --nodegroup-name my-nodegroup --node-type t3.medium --nodes 2 --nodes-min 2 --nodes-max 3 --managed
+
+    - name: Deploy to Amazon Elastic Kubernetes Service
+      env:
+        IMAGE1: ${{ steps.build-image.outputs.image1 }}
+        IMAGE2: ${{ steps.build-image.outputs.image2 }}
+      run: |
+         kubectl apply -f ./scripts/kubernetes/deployment.yaml 
+
+    - name: Check kubernetes services
+      run: |
+        kubectl get deployments
+        kubectl get pods
+        kubectl get service
+
+        
