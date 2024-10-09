@@ -1,4 +1,4 @@
-name: Deploy to AWS
+name: Deploy to AWS 3
 
 on:
   # push:
@@ -42,25 +42,25 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Create repositoty on AWS
-      run: |
-        aws ecr create-repository --repository-name $ECR_REPOSITORY1 --region $AWS_REGION
-        aws ecr create-repository --repository-name $ECR_REPOSITORY2 --region $AWS_REGION
+    # - name: Create repositoty on AWS
+    #   run: |
+    #     aws ecr create-repository --repository-name $ECR_REPOSITORY1 --region $AWS_REGION
+    #     aws ecr create-repository --repository-name $ECR_REPOSITORY2 --region $AWS_REGION
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      run: |
-        docker-compose up -d --build
-        docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-        docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
+    # - name: Build, tag, and push image to Amazon ECR
+    #   id: build-image
+    #   env:
+    #     ECR_REGISTRY: 
+    #   run: |
+    #     docker-compose up -d --build
+    #     docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+    #     docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
 
     - name: Install EKSCTL
       run: |
@@ -69,7 +69,9 @@ jobs:
         eksctl version
 
     - name: Create the deployment cluster
-      run: eksctl create cluster --name $EKS_CLUSTER --version 1.27 --region $AWS_REGION --nodegroup-name my-nodegroup --node-type t3.medium --nodes 2 --nodes-min 2 --nodes-max 3 --managed
+      run: |
+        # eksctl create cluster --name $EKS_CLUSTER --version 1.27 --region $AWS_REGION --nodegroup-name my-nodegroup --node-type t3.medium --nodes 2 --nodes-min 2 --nodes-max 3 --managed
+        aws eks --region ap-southeast-2 update-kubeconfig --name sit722-cluster
 
     - name: Deploy to Amazon Elastic Kubernetes Service
       env:
