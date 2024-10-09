@@ -1,8 +1,8 @@
 name: Deploy to AWS
 
 on:
-  # push:
-  #   branches: [ "main" ]
+  push:
+    branches: [ "main" ]
 
   workflow_dispatch:
 
@@ -10,14 +10,13 @@ env:
   AWS_REGION: ap-southeast-2
   ECR_REPOSITORY1: book-catalog
   ECR_REPOSITORY2: inventory-management
-  EKS_CLUSTER: tamim-sit722-cluster
+  EKS_CLUSTER: tamim-shahriar-sit722-cluster
   VERSION: ${{ github.sha }}
 
 jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    # environment: production
 
     steps:
     - name: Checkout
@@ -28,7 +27,6 @@ jobs:
         docker --version
         kubectl version --client
         aws --version
-
 
     - name: Install docker-compose
       uses: KengoTODA/actions-setup-docker-compose@v1
@@ -51,16 +49,13 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
+    - name: Build docker Image
+      run: ./scripts/build-image.sh
+
+    - name: Tag and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      run: |
-        docker-compose up -d --build
-        docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-        docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
+      run: ./scripts/push-image.sh
 
     - name: Install EKSCTL
       run: |
@@ -74,11 +69,7 @@ jobs:
     - name: Deploy to Amazon Elastic Kubernetes Service
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      run: |
-        # cat $ECR_REGISTRY
-        # cat $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-        # cat $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-        kubectl apply -f ./scripts/kubernetes/deployment.yaml 
+      run: ./scripts/deploy.sh
 
     - name: Check kubernetes services
       run: |

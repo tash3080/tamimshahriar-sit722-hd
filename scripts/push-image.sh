@@ -3,17 +3,12 @@
 #
 
 set -u # or set -o nounset
-: "$CONTAINER_REGISTRY"
+: "$ECR_REPOSITORY1"
+: "$ECR_REPOSITORY2"
+: "$ECR_REGISTRY"
 : "$VERSION"
-: "$REGISTRY_UN"
-: "$REGISTRY_PW"
 
-echo $REGISTRY_PW | docker login $CONTAINER_REGISTRY --username $REGISTRY_UN --password-stdin
-
-docker tag book-catalog:latest $CONTAINER_REGISTRY/book-catalog:$VERSION
-
-docker tag inventory-management:latest $CONTAINER_REGISTRY/inventory-management:$VERSION
-
-docker push $CONTAINER_REGISTRY/book-catalog:$VERSION
-
-docker push $CONTAINER_REGISTRY/inventory-management:$VERSION
+docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
+docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION

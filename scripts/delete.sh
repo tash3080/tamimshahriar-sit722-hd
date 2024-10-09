@@ -1,11 +1,11 @@
 #
-# Destroy the Node.js microservice on Kubernetes.
+# Delete the microservices to Kubernetes.
 #
 
-az aks get-credentials --resource-group $AZURE_RG --name $AZURE_AKS --overwrite-existing
+set -u # or set -o nounset
+: "$VERSION"
+: "$ECR_REGISTRY"
+: "$ECR_REPOSITORY1"
+: "$ECR_REPOSITORY2"
 
-kubectl get pods
-
-envsubst < ./scripts/kubernetes/deployment.yaml | kubectl delete -f -
-
-kubectl get pods
+envsubst < ./scripts/kubernetes/deployment.yaml | kubectl delete -f - 

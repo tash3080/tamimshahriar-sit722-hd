@@ -1,5 +1,5 @@
 #
-# Deploys the Node.js microservice to Kubernetes.
+# Deploys the microservices to Kubernetes.
 #
 
 set -u # or set -o nounset
@@ -8,5 +8,4 @@ set -u # or set -o nounset
 : "$ECR_REPOSITORY1"
 : "$ECR_REPOSITORY2"
 
-envsubst < ./scripts/kubernetes/deployment.yaml | kubectl delete -f - 
 envsubst < ./scripts/kubernetes/deployment.yaml | kubectl apply -f - 

@@ -1,0 +1,50 @@
+name: Delete EKS Deployment
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-southeast-2
+  ECR_REPOSITORY1: book-catalog
+  ECR_REPOSITORY2: inventory-management
+  EKS_CLUSTER: tamim-shahriar-sit722-cluster
+  VERSION: ${{ github.sha }}
+
+jobs:
+  delete:
+    name: Delete
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Verify Docker, Kubernetes and AWS installation
+      run: |
+        kubectl version --client
+        aws --version
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Install EKSCTL
+      run: |
+        curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.191.0/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+        sudo mv /tmp/eksctl /usr/local/bin
+        eksctl version
+
+    - name: Update kubeconfig
+      run: aws eks --region $AWS_REGION update-kubeconfig --name $EKS_CLUSTER
+
+    - name: Delete the Kubernetes Deployment
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: ./scripts/delete.sh
