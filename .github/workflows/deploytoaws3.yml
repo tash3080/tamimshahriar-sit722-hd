@@ -76,12 +76,7 @@ jobs:
     - name: Deploy to Amazon Elastic Kubernetes Service
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      run: |
-        # cat $ECR_REGISTRY
-        # cat $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-        # cat $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-        kubectl delete -f ./scripts/kubernetes/deployment.yaml
-        kubectl apply -f ./scripts/kubernetes/deployment.yaml 
+      run: ./scripts/deploy.sh
 
     - name: Check kubernetes services
       run: |
