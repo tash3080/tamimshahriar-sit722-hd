@@ -42,25 +42,25 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    # - name: Create repositoty on AWS
-    #   run: |
-    #     aws ecr create-repository --repository-name $ECR_REPOSITORY1 --region $AWS_REGION
-    #     aws ecr create-repository --repository-name $ECR_REPOSITORY2 --region $AWS_REGION
+    - name: Create repositoty on AWS
+      run: |
+        aws ecr create-repository --repository-name $ECR_REPOSITORY1 --region $AWS_REGION
+        aws ecr create-repository --repository-name $ECR_REPOSITORY2 --region $AWS_REGION
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    # - name: Build, tag, and push image to Amazon ECR
-    #   id: build-image
-    #   env:
-    #     ECR_REGISTRY: 
-    #   run: |
-    #     docker-compose up -d --build
-    #     docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-    #     docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
-    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
-    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: 
+      run: |
+        docker-compose up -d --build
+        docker tag $ECR_REPOSITORY1:latest $ECR_REGISTRY/$ECR_REPOSITORY1:latest
+        docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:latest
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY1:latest
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY2:latest
 
     - name: Install EKSCTL
       run: |
