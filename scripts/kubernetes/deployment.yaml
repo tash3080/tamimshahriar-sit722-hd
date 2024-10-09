@@ -16,8 +16,7 @@ spec:
     spec:
       containers:
       - name: book-catalog
-        # image: 287423721143.dkr.ecr.ap-southeast-2.amazonaws.com/book-catalog:latest
-        image: $IMAGE1
+        image: $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
         ports:
         - containerPort: 8000
         
@@ -52,8 +51,7 @@ spec:
     spec:
       containers:
       - name: inventory-management
-        # image: 287423721143.dkr.ecr.ap-southeast-2.amazonaws.com/inventory-management:latest
-        image: $IMAGE2
+        image: $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
         ports:
         - containerPort: 8000
         

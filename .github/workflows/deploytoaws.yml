@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: ap-southeast-2 
-  ECR_REPOSITORY1: book-catalog  
+  AWS_REGION: ap-southeast-2
+  ECR_REPOSITORY1: book-catalog
   ECR_REPOSITORY2: inventory-management
-  ECS_CLUSTER: sit722-cluster
+  EKS_CLUSTER: sit722-cluster
   VERSION: ${{ github.sha }}
 
 jobs:
@@ -61,8 +61,6 @@ jobs:
         docker tag $ECR_REPOSITORY2:latest $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
         docker push $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
         docker push $ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION
-        echo "image1=$ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION" >> $GITHUB_OUTPUT
-        echo "image2=$ECR_REGISTRY/$ECR_REPOSITORY2:$VERSION" >> $GITHUB_OUTPUT
 
     - name: Install EKSCTL
       run: |
@@ -71,12 +69,11 @@ jobs:
         eksctl version
 
     - name: Create the deployment cluster
-      run: eksctl create cluster --name my-cluster --version 1.27 --region ap-southeast-2 --nodegroup-name my-nodegroup --node-type t3.medium --nodes 2 --nodes-min 2 --nodes-max 3 --managed
+      run: eksctl create cluster --name $EKS_CLUSTER --version 1.27 --region $AWS_REGION --nodegroup-name my-nodegroup --node-type t3.medium --nodes 2 --nodes-min 2 --nodes-max 3 --managed
 
     - name: Deploy to Amazon Elastic Kubernetes Service
       env:
-        IMAGE1: ${{ steps.build-image.outputs.image1 }}
-        IMAGE2: ${{ steps.build-image.outputs.image2 }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
          kubectl apply -f ./scripts/kubernetes/deployment.yaml 
 
@@ -84,6 +81,4 @@ jobs:
       run: |
         kubectl get deployments
         kubectl get pods
-        kubectl get service
-
-        
+        kubectl get services
