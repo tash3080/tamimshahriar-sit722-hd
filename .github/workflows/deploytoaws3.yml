@@ -71,7 +71,7 @@ jobs:
     - name: Create the deployment cluster
       run: |
         # eksctl create cluster --name $EKS_CLUSTER --version 1.27 --region $AWS_REGION --nodegroup-name my-nodegroup --node-type t3.medium --nodes 2 --nodes-min 2 --nodes-max 3 --managed
-        aws eks --region ap-southeast-2 update-kubeconfig --name sit722-cluster
+        aws eks --region ap-southeast-2 update-kubeconfig --name tamim-sit722-cluster
 
     - name: Deploy to Amazon Elastic Kubernetes Service
       env:
