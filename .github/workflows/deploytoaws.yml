@@ -10,7 +10,7 @@ env:
   AWS_REGION: ap-southeast-2
   ECR_REPOSITORY1: book-catalog
   ECR_REPOSITORY2: inventory-management
-  EKS_CLUSTER: sit722-cluster
+  EKS_CLUSTER: tamim-sit722-cluster
   VERSION: ${{ github.sha }}
 
 jobs:
@@ -75,7 +75,10 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-         kubectl apply -f ./scripts/kubernetes/deployment.yaml 
+        cat $ECR_REGISTRY
+        cat $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+        cat $ECR_REGISTRY/$ECR_REPOSITORY1:$VERSION
+        kubectl apply -f ./scripts/kubernetes/deployment.yaml 
 
     - name: Check kubernetes services
       run: |
