@@ -10,7 +10,7 @@ env:
   AWS_REGION: ap-southeast-2
   ECR_REPOSITORY1: book-catalog
   ECR_REPOSITORY2: inventory-management
-  EKS_CLUSTER: tamim-shahriar-sit722-cluster
+  EKS_CLUSTER: tamimshahriar-sit722-cluster
   VERSION: ${{ github.sha }}
 
 jobs:
